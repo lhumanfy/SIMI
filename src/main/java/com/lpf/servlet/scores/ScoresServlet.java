@@ -73,7 +73,6 @@ public class ScoresServlet extends HttpServlet {
         if (scorecouTemp != null && !scorecouTemp.equals("")) {
             scorecou = Integer.parseInt(scorecouTemp);
         }
-
         //获取成绩列表
 
         scoreList = scoreService.getScoreList(sno, scorecou);
@@ -235,9 +234,6 @@ public class ScoresServlet extends HttpServlet {
             req.setAttribute(Constants.MESSAGE, "成绩添加失败");
             req.setAttribute("score", score);
         }
-
-        courseList = courseService.getCourseList();
-        req.setAttribute("coList", courseList);
 
         req.getRequestDispatcher("/jsp/scoreadd.jsp").forward(req, resp);
     }
