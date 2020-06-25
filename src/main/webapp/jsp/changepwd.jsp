@@ -1,7 +1,7 @@
 <%@ page contentType="text/html;charset=UTF-8" language="java" %>
 <%@include file="/jsp/common/header.jsp" %>
 <div class="changePwd">
-    <form class="form-horizontal" id="changepwd" action="${pageContext.request.contextPath}/stu.do" method="post">
+    <form class="form-horizontal" id="changepwd" action="${pageContext.request.contextPath}/adm.do" method="post">
         <input type="hidden" name="method" value="savepwd">
 
         <div class="form-group">${message}</div>

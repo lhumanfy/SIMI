@@ -1,7 +1,7 @@
 <%@ page contentType="text/html;charset=UTF-8" language="java" %>
-<%@include file="/jsp/common/header.jsp" %>
+<%@include file="/jsp/stuview/common/header.jsp" %>
 <div class="changePwd">
-    <form class="form-horizontal" id="changepwd" action="${pageContext.request.contextPath}/adm.do" method="post">
+    <form class="form-horizontal" id="changepwd" action="${pageContext.request.contextPath}/stu.do" method="post">
         <input type="hidden" name="method" value="savepwd">
 
         <div class="form-group">${message}</div>
@@ -29,4 +29,4 @@
     </form>
 </div>
 <%@include file="/jsp/common/footer.jsp" %>
-<script type="text/javascript" src="${pageContext.request.contextPath}/js/changepwd.js"></script>
+<script type="text/javascript" src="${pageContext.request.contextPath}/js/stujs/changepwd.js"></script>

@@ -25,19 +25,27 @@
         <filter-name>SysFilter</filter-name>
         <url-pattern>/jsp/*</url-pattern>
     </filter-mapping>
+    <filter-mapping>
+        <filter-name>SysFilter</filter-name>
+        <url-pattern>/jsp/common/*</url-pattern>
+    </filter-mapping>
+    <filter-mapping>
+        <filter-name>SysFilter</filter-name>
+        <url-pattern>/jsp/stuview/*</url-pattern>
+    </filter-mapping>
 
     <servlet>
         <servlet-name>LoginServlet</servlet-name>
-        <servlet-class>com.lpf.servlet.student.LoginServlet</servlet-class>
+        <servlet-class>com.lpf.servlet.LoginServlet</servlet-class>
     </servlet>
     <servlet-mapping>
         <servlet-name>LoginServlet</servlet-name>
         <url-pattern>/login.do</url-pattern>
     </servlet-mapping>
-    
+
     <servlet>
         <servlet-name>LoginoutServlet</servlet-name>
-        <servlet-class>com.lpf.servlet.student.LoginoutServlet</servlet-class>
+        <servlet-class>com.lpf.servlet.LoginoutServlet</servlet-class>
     </servlet>
     <servlet-mapping>
         <servlet-name>LoginoutServlet</servlet-name>
@@ -54,6 +62,15 @@
     </servlet-mapping>
 
     <servlet>
+        <servlet-name>AdminServlet</servlet-name>
+        <servlet-class>com.lpf.servlet.admin.AdminServlet</servlet-class>
+    </servlet>
+    <servlet-mapping>
+        <servlet-name>AdminServlet</servlet-name>
+        <url-pattern>/adm.do</url-pattern>
+    </servlet-mapping>
+
+    <servlet>
         <servlet-name>ScoresServlet</servlet-name>
         <servlet-class>com.lpf.servlet.scores.ScoresServlet</servlet-class>
     </servlet>
@@ -62,5 +79,8 @@
         <url-pattern>/score.do</url-pattern>
     </servlet-mapping>
 
+    <session-config>
+        <session-timeout>30</session-timeout>
+    </session-config>
 
 </web-app>

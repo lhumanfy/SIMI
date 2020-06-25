@@ -5,21 +5,24 @@
     <title>登录</title>
     <link href="${pageContext.request.contextPath}/css/boostrap/css/bootstrap.css" rel="stylesheet"/>
     <style>
-        .container{
+        .container {
             display: table;
             height: 100%;
         }
-        .col-center{
-            display:inline-block;
-            float:none;
-            text-align:left;
-            margin-right:-4px;
+
+        .col-center {
+            display: inline-block;
+            float: none;
+            text-align: left;
+            margin-right: -4px;
         }
-        .row-center{
+
+        .row-center {
             text-align: center;
         }
-        .row{
-            display:table-cell;
+
+        .row {
+            display: table-cell;
             vertical-align: middle;
         }
     </style>
@@ -37,6 +40,14 @@
                 </div>
                 <div class="form-group">
                     <input type="password" name="password" class="form-control" placeholder="密码" required>
+                </div>
+                <div class="form-group">
+                    <label class="radio-inline">
+                        <input type="radio" name="identity" value="student"/>学生
+                    </label>
+                    <label class="radio-inline">
+                        <input type="radio" name="identity" value="admin"/>管理员
+                    </label>
                 </div>
                 <div class="form-group">
                     <input class="btn btn-default" type="submit" value="登录">

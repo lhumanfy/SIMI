@@ -12,7 +12,7 @@ $(function () {
     reNewPwd = $("#reNewPwd");
     saveBtn = $("#saveBtn");
     oldPwd.on("blur", function () {
-        $.post("/stu.do", {
+        $.post("/adm.do", {
             method: "pwdajax",
             oldPwd: oldPwd.val()
         }, function (data) {

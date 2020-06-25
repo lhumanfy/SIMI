@@ -99,7 +99,15 @@ public class StuDaoImpl implements StuDao {
             StringBuffer sql = new StringBuffer();
             sql.append("select * from StudentInfo stu,Faculty fac ,Major M where stu.Facultyno = fac.Facultyno and" +
                     "  stu.Majorno = M.Majorno ");
+//            sql.append("select top ? *\n" +
+//                    "from (select row_number() over (order by Sno asc) as rownumber,stu.*,Majorname,Facultyname\n" +
+//                    "      from StudentInfo stu,Faculty fac ,Major M where stu.Facultyno = fac.Facultyno\n" +
+//                    "                                                  and stu.Majorno = M.Majorno) temp_row\n" +
+//                    "where rownumber>((?-1)*?) ");
             List<Object> list = new ArrayList<>();
+//            list.add(PageSize);
+//            list.add(PageIndex);
+//            list.add(PageSize);
             if (Sno != null) {
                 sql.append(" and cast(Sno as CHAR) like ?");
                 list.add("%" + Sno + "%");

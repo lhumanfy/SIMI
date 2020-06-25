@@ -51,7 +51,12 @@ public class ScoresServlet extends HttpServlet {
             this.addScoreInfo(req, resp);
         } else if (method.equals("checkSnoCouno") && method != null) {
             this.checkSnoCouno(req, resp);
+        }else if (method.equals("stuscore") && method != null) {
+            this.getStuScore(req, resp);
+        }else if (method.equals("getSubInfo") && method != null) {
+            this.getSubInfo(req, resp);
         }
+
     }
 
     //得到成绩信息
@@ -271,5 +276,74 @@ public class ScoresServlet extends HttpServlet {
         } catch (Exception e) {
             e.printStackTrace();
         }
+    }
+
+    //以下学生操作，即学生能够操作的界面
+
+    //获取登录的学生成绩
+    public void getStuScore(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException{
+        String snoTemp = req.getParameter("scoresno");
+        String scorecouTemp = req.getParameter("scorecou");
+
+        Integer sno = null;//输入框学号的初始默认数据
+        int scorecou = 0;//选择课程的下拉框默认数据
+
+        ScoreService scoreService = new ScoreServiceImpl();
+        CourseService courseService = new CourseServiceImpl();
+        List<Score> scoreList = null;
+        List<Course> courseList = null;
+
+        if (snoTemp != null && !snoTemp.equals("") && !snoTemp.equals("null")) {
+            sno = Integer.parseInt(snoTemp);
+        }
+        if (scorecouTemp != null && !scorecouTemp.equals("")) {
+            scorecou = Integer.parseInt(scorecouTemp);
+        }
+        //获取成绩列表
+
+        scoreList = scoreService.getScoreList(sno, scorecou);
+        req.setAttribute("scolist", scoreList);
+        courseList = courseService.getCourseList();
+        req.setAttribute("coList", courseList);
+
+        req.setAttribute("querySno", snoTemp);
+        req.setAttribute("queryCou", scorecou);
+
+        req.getRequestDispatcher("jsp/stuview/scorelist.jsp").forward(req, resp);
+    }
+
+    //查询某一学科信息
+    public void getSubInfo(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException{
+        String scorecouTemp = req.getParameter("scorecou");
+        Student stu = (Student) req.getSession().getAttribute(Constants.STU_SESSION);
+        Integer sno=null;
+        //从session中获取登录的学号
+        if (stu==null){
+            resp.sendRedirect("/error.jsp");
+            return;
+        }else {
+            sno=stu.getsNo();
+        }
+
+        int scorecou = 0;//选择课程的下拉框默认数据
+
+        ScoreService scoreService = new ScoreServiceImpl();
+        CourseService courseService = new CourseServiceImpl();
+        List<Score> scoreList = null;
+        List<Course> courseList = null;
+
+        if (scorecouTemp != null && !scorecouTemp.equals("")) {
+            scorecou = Integer.parseInt(scorecouTemp);
+        }
+        //获取成绩列表
+
+        scoreList = scoreService.getScoreList(sno, scorecou);
+        req.setAttribute("scolist", scoreList);
+        courseList = courseService.getCourseList();
+        req.setAttribute("coList", courseList);
+
+        req.setAttribute("queryCou", scorecou);
+
+        req.getRequestDispatcher("jsp/stuview/scorelist.jsp").forward(req, resp);
     }
 }

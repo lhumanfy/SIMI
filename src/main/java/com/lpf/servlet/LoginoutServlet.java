@@ -1,4 +1,4 @@
-package com.lpf.servlet.student;
+package com.lpf.servlet;
 
 import com.lpf.util.Constants;
 
@@ -18,6 +18,8 @@ public class LoginoutServlet extends HttpServlet {
     protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
         //移除用户的session
         req.getSession().removeAttribute(Constants.STU_SESSION);
+        req.getSession().removeAttribute(Constants.ADMIN_SESSION);
+        req.getSession().removeAttribute(Constants.IDENTITY_FLAG);
         resp.sendRedirect(req.getContextPath()+"/login.jsp");
     }
 }

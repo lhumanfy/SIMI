@@ -60,8 +60,10 @@ public class StuServlet extends HttpServlet {
             this.beforeAddStuInfo(req, resp);
         } else if (method.equals("examsno") && method != null) {
             this.examSno(req, resp);
-        }else if (method.equals("getSigleStu") && method != null) {
+        } else if (method.equals("getSigleStu") && method != null) {
             this.getSigleStu(req, resp);
+        }else if (method.equals("stuGetInfo") && method != null) {
+            this.stuGetInfo(req, resp);
         }
     }
 
@@ -375,18 +377,18 @@ public class StuServlet extends HttpServlet {
     }
 
     //根据学号得到student实例，然后返回名字与map判断
-    public void getSigleStu(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException{
+    public void getSigleStu(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
         String sno = req.getParameter("sno");
 
-        Map<String,String> message=new HashMap<String, String>();
+        Map<String, String> message = new HashMap<String, String>();
         if (StringUtils.isEmpty(sno)) {
             message.put("result", "empty");
         } else {
             StuService stuService = new StuServiceImpl();
             Student sigStuInfo = stuService.getSigStuInfo(Integer.parseInt(sno));
-            if (sigStuInfo!=null) {
+            if (sigStuInfo != null) {
                 message.put("result", "success");
-                message.put("sname",sigStuInfo.getsName());
+                message.put("sname", sigStuInfo.getsName());
             } else {
                 message.put("result", "error");
             }
@@ -400,5 +402,35 @@ public class StuServlet extends HttpServlet {
         } catch (Exception e) {
             e.printStackTrace();
         }
+    }
+
+    //下面学生界面操作
+
+    //获取登录的学生信息
+    public void stuGetInfo(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+        Student stuSession = (Student) req.getSession().getAttribute(Constants.STU_SESSION);
+
+        if (stuSession == null) {
+            resp.sendRedirect("/error.jsp");
+            return;
+        }
+
+        int sno = stuSession.getsNo();
+        int majorno = stuSession.getMajorNo();
+        int facultyno = stuSession.getFacltyNo();
+
+        StuService stuService = new StuServiceImpl();
+        List<Student> stuList = null;
+
+        stuList = stuService.getStuList(sno, majorno, facultyno);
+        Student student = new Student();
+        for (Student stu : stuList) {
+            if (stu.getsNo() == sno) {
+                student = stu;
+                break;
+            }
+        }
+        req.setAttribute("stuSingle", student);
+        req.getRequestDispatcher("/jsp/stuview/stuview.jsp").forward(req, resp);
     }
 }
