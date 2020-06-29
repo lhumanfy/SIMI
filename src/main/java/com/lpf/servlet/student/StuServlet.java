@@ -14,6 +14,7 @@ import com.lpf.service.major.MaServiceImpl;
 import com.lpf.service.student.StuService;
 import com.lpf.service.student.StuServiceImpl;
 import com.lpf.util.Constants;
+import com.lpf.util.Page;
 import com.microsoft.sqlserver.jdbc.StringUtils;
 
 import javax.servlet.ServletException;
@@ -22,11 +23,13 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.sql.Connection;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import static javafx.scene.input.KeyCode.CIRCUMFLEX;
 import static javafx.scene.input.KeyCode.M;
 
 public class StuServlet extends HttpServlet {
@@ -62,7 +65,7 @@ public class StuServlet extends HttpServlet {
             this.examSno(req, resp);
         } else if (method.equals("getSigleStu") && method != null) {
             this.getSigleStu(req, resp);
-        }else if (method.equals("stuGetInfo") && method != null) {
+        } else if (method.equals("stuGetInfo") && method != null) {
             this.stuGetInfo(req, resp);
         }
     }
@@ -136,10 +139,15 @@ public class StuServlet extends HttpServlet {
         String snoTemp = req.getParameter("sno");
         String majorNoTemp = req.getParameter("queryMaNo");
         String queryFacultyNoTemp = req.getParameter("queryFacultyNo");
+        String curPageTemp = req.getParameter("pageIndex");
 
         Integer sno = null;//输入框学号的初始默认数据
         int queryMaNo = 0;//选择专业的下拉框默认数据
         int queryFaNo = 0;//选择学院的下拉框默认数据
+
+        //获取每个页面数据个数
+        int pageSize = Constants.PAGESIZE;
+        int curPage = 1;
 
         StuService stuService = new StuServiceImpl();
         MaService maService = new MaServiceImpl();
@@ -157,10 +165,30 @@ public class StuServlet extends HttpServlet {
         if (queryFacultyNoTemp != null && !queryFacultyNoTemp.equals("")) {
             queryFaNo = Integer.parseInt(queryFacultyNoTemp);
         }
+        if (curPageTemp != null && !curPageTemp.equals("")) {
+            curPage = Integer.parseInt(curPageTemp);
+        }
 
+        //获取数据总条数
+        int totalCount = stuService.getStuListCount(sno, queryMaNo, queryFaNo);
+        Page page = new Page();
+        page.setCurPage(curPage);
+        page.setPageSize(pageSize);
+        page.setTotalCount(totalCount);
+        page.setTotalPage();
+
+        int totalPage = page.getTotalPage();
+        if (curPage < 1) {
+            curPage = 1;
+        } else if (curPage > totalPage) {
+            curPage = totalPage;
+        }
+
+        req.setAttribute("totalPage", totalPage);
+        req.setAttribute("curPage", curPage);
+        req.setAttribute("totalCount", totalCount);
         //获取用户列表
-
-        stuList = stuService.getStuList(sno, queryMaNo, queryFaNo);
+        stuList = stuService.getStuList(sno, queryMaNo, queryFaNo, curPage, pageSize);
         req.setAttribute("stuList", stuList);
         majorList = maService.getMajorList();
         req.setAttribute("maList", majorList);
@@ -183,7 +211,7 @@ public class StuServlet extends HttpServlet {
         StuService stuService = new StuServiceImpl();
         List<Student> stuList = null;
 
-        stuList = stuService.getStuList(Integer.parseInt(sno), Integer.parseInt(majorno), Integer.parseInt(facultyno));
+        stuList = stuService.getStuList(Integer.parseInt(sno), Integer.parseInt(majorno), Integer.parseInt(facultyno), 1, 10);
         Student student = new Student();
         for (Student stu : stuList) {
             if (stu.getsNo() == Integer.parseInt(sno)) {
@@ -210,7 +238,7 @@ public class StuServlet extends HttpServlet {
         List<Faculty> facultyList = null;
 
 
-        stuList = stuService.getStuList(Integer.parseInt(sno), Integer.parseInt(majorno), Integer.parseInt(facultyno));
+        stuList = stuService.getStuList(Integer.parseInt(sno), Integer.parseInt(majorno), Integer.parseInt(facultyno), 1, 10);
         Student student = new Student();
         for (Student stu : stuList) {
             if (stu.getsNo() == Integer.parseInt(sno)) {
@@ -422,7 +450,7 @@ public class StuServlet extends HttpServlet {
         StuService stuService = new StuServiceImpl();
         List<Student> stuList = null;
 
-        stuList = stuService.getStuList(sno, majorno, facultyno);
+        stuList = stuService.getStuList(sno, majorno, facultyno, 1, 10);
         Student student = new Student();
         for (Student stu : stuList) {
             if (stu.getsNo() == sno) {

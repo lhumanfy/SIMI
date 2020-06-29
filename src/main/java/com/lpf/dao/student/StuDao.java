@@ -16,7 +16,9 @@ public interface StuDao {
     //查询登录用户成绩
     public List<Score> getUserScore(Connection connection,int Sno);
     //查询所有用户信息
-    public List<Student> getStuInfo(Connection connection,Integer Sno,int Majorno,int Facultyno);
+    public List<Student> getStuInfo(Connection connection,Integer Sno,int Majorno,int Facultyno,int curPage,int pageSize);
+    //获取用户个数
+    public int getStuInfoCount(Connection connection,Integer Sno,int Majorno,int Facultyno);
     //更改用户信息
     public int upStuInfo(Connection connection,Student student);
     //删除用户

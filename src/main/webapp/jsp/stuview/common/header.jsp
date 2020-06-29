@@ -19,7 +19,7 @@
                 <span class="icon-bar"></span>
                 <span class="icon-bar"></span>
             </button>
-            <a href="${pageContext.request.contextPath}/jsp/index.jsp" class="navbar-brand">信息管理系统</a>
+            <a href="${pageContext.request.contextPath}/jsp/stuview/index.jsp" class="navbar-brand">信息管理系统</a>
         </div>
         <div id="navbar" class="navbar-collapse collapse">
             <ul class="nav navbar-nav navbar-right">
@@ -33,7 +33,7 @@
         <div class="col-sm-3 col-md-2 sidebar">
             <ul class="nav nav-sidebar">
                 <li>
-                    <a href="${pageContext.request.contextPath}/score.do?method=stuscore&scoresno=${sessionScope.stuSession.sNo}">个人成绩</a>
+                    <a href="${pageContext.request.contextPath}/score.do?method=getSubInfo">个人成绩</a>
                 </li>
                 <li>
                     <a href="${pageContext.request.contextPath}/stu.do?method=stuGetInfo">个人信息</a>

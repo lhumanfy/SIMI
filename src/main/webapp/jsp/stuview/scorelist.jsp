@@ -18,6 +18,7 @@
                 </c:if>
             </select>
         </div>
+        <input type="hidden" name="pageIndex" value="1">
         <input type="submit" id="searchSco" value="查询" class="btn btn-default">
     </form>
 </div>
@@ -53,6 +54,11 @@
     </c:forEach>
     <tbody>
 </table>
+<c:import url="/jsp/page.jsp">
+    <c:param name="totalCount" value="${totalCount}"/>
+    <c:param name="curPage" value="${curPage}"/>
+    <c:param name="totalPage" value="${totalPage}"/>
+</c:import>
 
 <%@include file="/jsp/common/footer.jsp" %>
 <script type="text/javascript" src="${pageContext.request.contextPath}/js/scorelist.js"></script>

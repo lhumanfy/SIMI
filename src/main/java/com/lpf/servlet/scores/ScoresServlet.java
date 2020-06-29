@@ -13,6 +13,7 @@ import com.lpf.service.score.ScoreServiceImpl;
 import com.lpf.service.student.StuService;
 import com.lpf.service.student.StuServiceImpl;
 import com.lpf.util.Constants;
+import com.lpf.util.Page;
 import com.microsoft.sqlserver.jdbc.StringUtils;
 import org.apache.taglibs.standard.tag.common.fmt.MessageSupport;
 
@@ -51,9 +52,7 @@ public class ScoresServlet extends HttpServlet {
             this.addScoreInfo(req, resp);
         } else if (method.equals("checkSnoCouno") && method != null) {
             this.checkSnoCouno(req, resp);
-        }else if (method.equals("stuscore") && method != null) {
-            this.getStuScore(req, resp);
-        }else if (method.equals("getSubInfo") && method != null) {
+        } else if (method.equals("getSubInfo") && method != null) {
             this.getSubInfo(req, resp);
         }
 
@@ -63,9 +62,14 @@ public class ScoresServlet extends HttpServlet {
     public void getScoreInfo(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
         String snoTemp = req.getParameter("scoresno");
         String scorecouTemp = req.getParameter("scorecou");
+        String curPageTemp = req.getParameter("pageIndex");
 
         Integer sno = null;//输入框学号的初始默认数据
         int scorecou = 0;//选择课程的下拉框默认数据
+
+        //获取每个页面数据个数
+        int pageSize = Constants.PAGESIZE;
+        int curPage = 1;
 
         ScoreService scoreService = new ScoreServiceImpl();
         CourseService courseService = new CourseServiceImpl();
@@ -78,9 +82,30 @@ public class ScoresServlet extends HttpServlet {
         if (scorecouTemp != null && !scorecouTemp.equals("")) {
             scorecou = Integer.parseInt(scorecouTemp);
         }
-        //获取成绩列表
+        if (curPageTemp != null && !curPageTemp.equals("")) {
+            curPage = Integer.parseInt(curPageTemp);
+        }
 
-        scoreList = scoreService.getScoreList(sno, scorecou);
+        //获取数据总条数
+        int totalCount = scoreService.getScoreListCount(sno,scorecou,curPage,pageSize);
+        Page page = new Page();
+        page.setCurPage(curPage);
+        page.setPageSize(pageSize);
+        page.setTotalCount(totalCount);
+        page.setTotalPage();
+
+        int totalPage = page.getTotalPage();
+        if (curPage < 1) {
+            curPage = 1;
+        } else if (curPage > totalPage) {
+            curPage = totalPage;
+        }
+
+        req.setAttribute("totalPage", totalPage);
+        req.setAttribute("curPage", curPage);
+        req.setAttribute("totalCount", totalCount);
+        //获取成绩列表
+        scoreList = scoreService.getScoreList(sno, scorecou,curPage,pageSize);
         req.setAttribute("scolist", scoreList);
         courseList = courseService.getCourseList();
         req.setAttribute("coList", courseList);
@@ -101,7 +126,7 @@ public class ScoresServlet extends HttpServlet {
         List<Score> scoreList = null;
         List<Course> courseList = null;
 
-        scoreList = scoreService.getScoreList(Integer.parseInt(sno), Integer.parseInt(counum));
+        scoreList = scoreService.getScoreList(Integer.parseInt(sno), Integer.parseInt(counum),1,10);
         courseList = courseService.getCourseList();
         Score score = new Score();
         for (Score sco : scoreList) {
@@ -125,7 +150,7 @@ public class ScoresServlet extends HttpServlet {
         List<Score> scoreList = null;
         List<Course> courseList = null;
 
-        scoreList = scoreService.getScoreList(Integer.parseInt(sno), Integer.parseInt(counum));
+        scoreList = scoreService.getScoreList(Integer.parseInt(sno), Integer.parseInt(counum),1,10);
         courseList = courseService.getCourseList();
 
         Score score = new Score();
@@ -279,43 +304,12 @@ public class ScoresServlet extends HttpServlet {
     }
 
     //以下学生操作，即学生能够操作的界面
-
-    //获取登录的学生成绩
-    public void getStuScore(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException{
-        String snoTemp = req.getParameter("scoresno");
-        String scorecouTemp = req.getParameter("scorecou");
-
-        Integer sno = null;//输入框学号的初始默认数据
-        int scorecou = 0;//选择课程的下拉框默认数据
-
-        ScoreService scoreService = new ScoreServiceImpl();
-        CourseService courseService = new CourseServiceImpl();
-        List<Score> scoreList = null;
-        List<Course> courseList = null;
-
-        if (snoTemp != null && !snoTemp.equals("") && !snoTemp.equals("null")) {
-            sno = Integer.parseInt(snoTemp);
-        }
-        if (scorecouTemp != null && !scorecouTemp.equals("")) {
-            scorecou = Integer.parseInt(scorecouTemp);
-        }
-        //获取成绩列表
-
-        scoreList = scoreService.getScoreList(sno, scorecou);
-        req.setAttribute("scolist", scoreList);
-        courseList = courseService.getCourseList();
-        req.setAttribute("coList", courseList);
-
-        req.setAttribute("querySno", snoTemp);
-        req.setAttribute("queryCou", scorecou);
-
-        req.getRequestDispatcher("jsp/stuview/scorelist.jsp").forward(req, resp);
-    }
-
-    //查询某一学科信息
+    //登录成功后如果查询某一学科信息，则从session中获取用户学号从而完成查询
     public void getSubInfo(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException{
         String scorecouTemp = req.getParameter("scorecou");
         Student stu = (Student) req.getSession().getAttribute(Constants.STU_SESSION);
+        String curPageTemp = req.getParameter("pageIndex");
+
         Integer sno=null;
         //从session中获取登录的学号
         if (stu==null){
@@ -325,7 +319,12 @@ public class ScoresServlet extends HttpServlet {
             sno=stu.getsNo();
         }
 
-        int scorecou = 0;//选择课程的下拉框默认数据
+        //选择课程的下拉框默认数据
+        int scorecou = 0;
+
+        //获取每个页面数据个数
+        int pageSize = Constants.PAGESIZE;
+        int curPage = 1;
 
         ScoreService scoreService = new ScoreServiceImpl();
         CourseService courseService = new CourseServiceImpl();
@@ -335,9 +334,31 @@ public class ScoresServlet extends HttpServlet {
         if (scorecouTemp != null && !scorecouTemp.equals("")) {
             scorecou = Integer.parseInt(scorecouTemp);
         }
-        //获取成绩列表
+        if (curPageTemp != null && !curPageTemp.equals("")) {
+            curPage = Integer.parseInt(curPageTemp);
+        }
 
-        scoreList = scoreService.getScoreList(sno, scorecou);
+        //获取数据总条数
+        int totalCount = scoreService.getScoreListCount(sno,scorecou,curPage,pageSize);
+        Page page = new Page();
+        page.setCurPage(curPage);
+        page.setPageSize(pageSize);
+        page.setTotalCount(totalCount);
+        page.setTotalPage();
+
+        int totalPage = page.getTotalPage();
+        if (curPage < 1) {
+            curPage = 1;
+        } else if (curPage > totalPage) {
+            curPage = totalPage;
+        }
+
+        req.setAttribute("totalPage", totalPage);
+        req.setAttribute("curPage", curPage);
+        req.setAttribute("totalCount", totalCount);
+
+        //获取成绩列表
+        scoreList = scoreService.getScoreList(sno, scorecou,curPage,pageSize);//待定
         req.setAttribute("scolist", scoreList);
         courseList = courseService.getCourseList();
         req.setAttribute("coList", courseList);

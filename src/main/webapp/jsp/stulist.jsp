@@ -39,6 +39,7 @@
                 </c:if>
             </select>
         </div>
+        <input type="hidden" name="pageIndex" value="1">
         <input type="submit" id="searchBtn" value="查询" class="btn btn-default">
         <input type="button" id="goStuAdd" value="添加新用户" class="btn btn-default">
     </form>
@@ -90,7 +91,11 @@
     </c:forEach>
     <tbody>
 </table>
-
+<c:import url="page.jsp">
+    <c:param name="totalCount" value="${totalCount}"/>
+    <c:param name="curPage" value="${curPage}"/>
+    <c:param name="totalPage" value="${totalPage}"/>
+</c:import>
 
 <%@include file="/jsp/common/footer.jsp" %>
 <script type="text/javascript" src="${pageContext.request.contextPath}/js/stulist.js"></script>

@@ -89,25 +89,19 @@ public class StuDaoImpl implements StuDao {
         return scoreList;
     }
 
-    //查询用户信息
+    //获取用户个数
+
     @Override
-    public List<Student> getStuInfo(Connection connection, Integer Sno, int Majorno, int Facultyno) {
+    public int getStuInfoCount(Connection connection, Integer Sno, int Majorno, int Facultyno) {
         PreparedStatement preparedStatement = null;
         ResultSet resultSet = null;
-        List<Student> stuList = new ArrayList<>();
+        int number=0;
         if (connection != null) {
             StringBuffer sql = new StringBuffer();
-            sql.append("select * from StudentInfo stu,Faculty fac ,Major M where stu.Facultyno = fac.Facultyno and" +
-                    "  stu.Majorno = M.Majorno ");
-//            sql.append("select top ? *\n" +
-//                    "from (select row_number() over (order by Sno asc) as rownumber,stu.*,Majorname,Facultyname\n" +
-//                    "      from StudentInfo stu,Faculty fac ,Major M where stu.Facultyno = fac.Facultyno\n" +
-//                    "                                                  and stu.Majorno = M.Majorno) temp_row\n" +
-//                    "where rownumber>((?-1)*?) ");
+            //top后面不能用占位符号？，所以只能用拼接
+            sql.append("select count(1) as count from StudentInfo stu,Faculty fac ,Major M where stu.Facultyno = fac.Facultyno\n" +
+                    "                                                 and stu.Majorno = M.Majorno");
             List<Object> list = new ArrayList<>();
-//            list.add(PageSize);
-//            list.add(PageIndex);
-//            list.add(PageSize);
             if (Sno != null) {
                 sql.append(" and cast(Sno as CHAR) like ?");
                 list.add("%" + Sno + "%");
@@ -121,6 +115,51 @@ public class StuDaoImpl implements StuDao {
                 list.add(Facultyno);
             }
 
+            Object[] params = list.toArray();
+            try {
+                resultSet = BaseDao.query(connection, preparedStatement, resultSet, sql.toString(), params);
+                while (resultSet.next()) {
+                    number=resultSet.getInt("count");
+                }
+                BaseDao.closeDb(connection, preparedStatement, resultSet);
+            } catch (SQLException e) {
+                e.printStackTrace();
+            }
+        }
+        return number;
+    }
+
+    //查询用户信息
+    @Override
+    public List<Student> getStuInfo(Connection connection, Integer Sno, int Majorno, int Facultyno, int curPage, int pageSize) {
+        PreparedStatement preparedStatement = null;
+        ResultSet resultSet = null;
+        List<Student> stuList = new ArrayList<>();
+        if (connection != null) {
+            StringBuffer sql = new StringBuffer();
+            //top后面不能用占位符号？，所以只能用拼接
+            sql.append("select top "+pageSize+" * " +
+                    "from (select row_number() over (order by stu.Sno) as rownumber,stu.*,Majorname,Facultyname " +
+                    "from StudentInfo stu,Faculty fac ,Major M where stu.Facultyno = fac.Facultyno " +
+                    "and stu.Majorno = M.Majorno ");
+            List<Object> list = new ArrayList<>();
+            if (Sno != null) {
+                sql.append(" and cast(Sno as CHAR) like ?");
+                list.add("%" + Sno + "%");
+            }
+            if (Majorno > 0) {
+                sql.append(" and stu.Majorno=?");
+                list.add(Majorno);
+            }
+            if (Facultyno > 0) {
+                sql.append(" and stu.Facultyno=?");
+                list.add(Facultyno);
+            }
+
+            //数据库分页
+            sql.append(") temp_tb where rownumber>((?-1)*?) ");
+            list.add(curPage);
+            list.add(pageSize);
             Object[] params = list.toArray();
             try {
                 resultSet = BaseDao.query(connection, preparedStatement, resultSet, sql.toString(), params);

@@ -14,7 +14,9 @@ public interface StuService {
     //得到查询成绩集合
     public List<Score> getScoreList(int userName);
     //查询全部用户信息
-    public List<Student> getStuList(Integer userName,int Majorno,int Facultyno);
+    public List<Student> getStuList(Integer userName,int Majorno,int Facultyno, int curPage, int pageSize);
+    //查询全部用户个数
+    public int getStuListCount(Integer userName,int Majorno,int Facultyno);
     //更改用户信息
     public Boolean upStudent(Student student);
     //删除信息

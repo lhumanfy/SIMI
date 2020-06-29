@@ -18,18 +18,33 @@ public class ScoreServiceImpl implements ScoreService{
         scoresDao=new ScoresDaoImpl();
     }
     @Override
-    public List<Score> getScoreList(Integer Sno, int Counumber) {
+    public List<Score> getScoreList(Integer Sno, int Counumber,int curPage,int pageSize) {
         Connection connection=null;
         List<Score> scoreList=new ArrayList<>();
         try {
             connection= BaseDao.getConnection();
-            scoreList=scoresDao.getUserScore(connection,Sno,Counumber);
+            scoreList=scoresDao.getUserScore(connection,Sno,Counumber,curPage,pageSize);
         }catch (Exception e){
             e.printStackTrace();
         }finally {
             BaseDao.closeDb(connection,null,null);
         }
         return scoreList;
+    }
+
+    @Override
+    public int getScoreListCount(Integer Sno, int Counumber, int curPage, int pageSize) {
+        Connection connection=null;
+        int count=0;
+        try {
+            connection= BaseDao.getConnection();
+            count=scoresDao.getUserScoreCount(connection,Sno,Counumber,curPage,pageSize);
+        }catch (Exception e){
+            e.printStackTrace();
+        }finally {
+            BaseDao.closeDb(connection,null,null);
+        }
+        return count;
     }
 
     @Override
@@ -106,7 +121,7 @@ public class ScoreServiceImpl implements ScoreService{
     @Test
     public void test(){
         ScoreService scoreService=new ScoreServiceImpl();
-        List<Score> scoreList = scoreService.getScoreList(2017205, 2);
+        List<Score> scoreList = scoreService.getScoreList(2017205, 2,1,10);
         for (Score score:scoreList){
             System.out.println(score.getsName());
         }

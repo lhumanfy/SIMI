@@ -7,7 +7,9 @@ import java.util.List;
 
 public interface ScoresDao {
     //获取成绩
-    public List<Score> getUserScore(Connection connection, Integer Sno,int Counumber);
+    public List<Score> getUserScore(Connection connection, Integer Sno,int Counumber,int curPage,int pageSize);
+    //获取成绩数量count
+    public int getUserScoreCount(Connection connection, Integer Sno,int Counumber,int curPage,int pageSize);
     //更改成绩
     public int upScoreInfo(Connection connection,Score score);
     //删除成绩

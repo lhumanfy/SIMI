@@ -5,4 +5,6 @@ public class Constants {
     public final static String ADMIN_SESSION="admSession";
     public final static String IDENTITY_FLAG="identity_flag";
     public final static String MESSAGE="message";
+    public final static int PAGESIZE=10;
+
 }

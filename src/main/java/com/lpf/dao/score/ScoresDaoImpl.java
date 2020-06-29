@@ -13,15 +13,15 @@ import java.util.List;
 
 public class ScoresDaoImpl implements ScoresDao {
     @Override
-    public List<Score> getUserScore(Connection connection, Integer Sno,int Counumber) {
+    public List<Score> getUserScore(Connection connection, Integer Sno,int Counumber,int curPage,int pageSize) {
         PreparedStatement preparedStatement = null;
         ResultSet resultSet = null;
         List<Score> scoreList = new ArrayList<>();
         if (connection != null) {
             StringBuffer sql = new StringBuffer();
-            sql.append("select  sco.Sno,sco.Counumber,cou.Couname,Scores,Sname" +
-                    " from Score sco,StudentInfo stu,CourseInfo cou where sco.Sno=" +
-                    "stu.Sno and sco.Counumber=cou.Counumber");
+            sql.append("select top "+pageSize+" *\n" +
+                    "from  (select  row_number() over (order by stu.Sno) as rownumber,sco.Sno,sco.Counumber,cou.Couname,Scores,Sname\n" +
+                    "from Score sco,StudentInfo stu,CourseInfo cou where sco.Sno=stu.Sno and sco.Counumber=cou.Counumber");
             List<Object> list = new ArrayList<>();
             if (Sno != null) {
                 sql.append(" and cast(sco.Sno as CHAR) like ?");
@@ -32,6 +32,10 @@ public class ScoresDaoImpl implements ScoresDao {
                 list.add(Counumber);
             }
 
+            //数据库分页
+            sql.append(" ) temp_tb where rownumber>((?-1)*?) ");
+            list.add(curPage);
+            list.add(pageSize);
             Object[] params = list.toArray();
             try {
                 resultSet = BaseDao.query(connection, preparedStatement, resultSet, sql.toString(), params);
@@ -50,6 +54,39 @@ public class ScoresDaoImpl implements ScoresDao {
             }
         }
         return scoreList;
+    }
+
+    @Override
+    public int getUserScoreCount(Connection connection, Integer Sno, int Counumber, int curPage, int pageSize) {
+        PreparedStatement preparedStatement = null;
+        ResultSet resultSet = null;
+        int count=0;
+        if (connection != null) {
+            StringBuffer sql = new StringBuffer();
+            sql.append("select  count(1) as count\n" +
+                    "from Score sco,StudentInfo stu,CourseInfo cou where sco.Sno=stu.Sno and sco.Counumber=cou.Counumber");
+            List<Object> list = new ArrayList<>();
+            if (Sno != null) {
+                sql.append(" and cast(sco.Sno as CHAR) like ?");
+                list.add("%" + Sno + "%");
+            }
+            if (Counumber > 0) {
+                sql.append(" and cou.Counumber=?");
+                list.add(Counumber);
+            }
+
+            Object[] params = list.toArray();
+            try {
+                resultSet = BaseDao.query(connection, preparedStatement, resultSet, sql.toString(), params);
+                while (resultSet.next()) {
+                   count=resultSet.getInt("count");
+                }
+                BaseDao.closeDb(connection, preparedStatement, resultSet);
+            } catch (SQLException e) {
+                e.printStackTrace();
+            }
+        }
+        return count;
     }
 
     @Override
