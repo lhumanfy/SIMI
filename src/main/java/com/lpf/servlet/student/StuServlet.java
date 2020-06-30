@@ -49,8 +49,6 @@ public class StuServlet extends HttpServlet {
             this.getScore(req, resp);
         } else if (method.equals("stuinfo") && method != null) {
             this.getStuInfo(req, resp);
-        } else if (method.equals("viewStu") && method != null) {
-            this.viewStuInfo(req, resp);
         } else if (method.equals("changeStu") && method != null) {
             this.changeStuInfo(req, resp);
         } else if (method.equals("upStuInfo") && method != null) {
@@ -59,8 +57,6 @@ public class StuServlet extends HttpServlet {
             this.delStuInfo(req, resp);
         } else if (method.equals("addStuInfo") && method != null) {
             this.addStuInfo(req, resp);
-        } else if (method.equals("beforeAddStuInfo") && method != null) {
-            this.beforeAddStuInfo(req, resp);
         } else if (method.equals("examsno") && method != null) {
             this.examSno(req, resp);
         } else if (method.equals("getSigleStu") && method != null) {
@@ -202,27 +198,6 @@ public class StuServlet extends HttpServlet {
         req.getRequestDispatcher("/jsp/stulist.jsp").forward(req, resp);
     }
 
-    //查看用户信息
-    public void viewStuInfo(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
-        String sno = req.getParameter("sno");
-        String majorno = req.getParameter("majorno");
-        String facultyno = req.getParameter("facultyno");
-
-        StuService stuService = new StuServiceImpl();
-        List<Student> stuList = null;
-
-        stuList = stuService.getStuList(Integer.parseInt(sno), Integer.parseInt(majorno), Integer.parseInt(facultyno), 1, 10);
-        Student student = new Student();
-        for (Student stu : stuList) {
-            if (stu.getsNo() == Integer.parseInt(sno)) {
-                student = stu;
-                break;
-            }
-        }
-        req.setAttribute("stuSingle", student);
-        req.getRequestDispatcher("/jsp/stuview.jsp").forward(req, resp);
-    }
-
     //修改用户信息前查询用户信息
     public void changeStuInfo(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
         String sno = req.getParameter("sno");
@@ -321,21 +296,6 @@ public class StuServlet extends HttpServlet {
         }
     }
 
-    //添加用户前查询专业学院信息
-    public void beforeAddStuInfo(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
-        MaService maService = new MaServiceImpl();
-        FacultyService facultyService = new FacultyServiceImpl();
-        List<Major> majorList = null;
-        List<Faculty> facultyList = null;
-
-        majorList = maService.getMajorList();
-        req.setAttribute("maList", majorList);
-        facultyList = facultyService.getFacultyList();
-        req.setAttribute("faultyList", facultyList);
-
-        req.getRequestDispatcher("/jsp/stuadd.jsp").forward(req, resp);
-    }
-
     //添加用户
     public void addStuInfo(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
         String addsno = req.getParameter("addsno");
@@ -347,6 +307,7 @@ public class StuServlet extends HttpServlet {
         String addFaNo = req.getParameter("addFaNo");
         String addpwd = req.getParameter("addpwd");
 
+        Map<String, String> message = new HashMap<String, String>();
         Student student = new Student();
         student.setsNo(Integer.parseInt(addsno));
         student.setsName(addname);
@@ -370,12 +331,29 @@ public class StuServlet extends HttpServlet {
         facultyList = facultyService.getFacultyList();
         req.setAttribute("faultyList", facultyList);
         if (stuService.addStuInfo(student)) {
-            req.setAttribute(Constants.MESSAGE, "用户信息添加成功");
+            message.put("result", "success");
         } else {
-            req.setAttribute(Constants.MESSAGE, "用户信息添加失败");
-            req.setAttribute("stu", student);
+            message.put("result", "error");
+            message.put("sno", addsno);
+            message.put("name",addname);
+            message.put("sex", addsex);
+            message.put("bir", addbir);
+            message.put("class", addclass);
+            message.put("mano", addMaNo);
+            message.put("fano", addFaNo);
+            message.put("pwd", addpwd);
         }
-        req.getRequestDispatcher("/jsp/stuadd.jsp").forward(req, resp);
+
+        //将json数据返回
+        try {
+            resp.setContentType("application/json");
+            PrintWriter writer = resp.getWriter();
+            writer.write(JSONArray.toJSONString(message));
+            writer.flush();
+            writer.close();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 
     //验证添加学号是否重复

@@ -61,4 +61,3 @@
 </c:import>
 
 <%@include file="/jsp/common/footer.jsp" %>
-<script type="text/javascript" src="${pageContext.request.contextPath}/js/scorelist.js"></script>

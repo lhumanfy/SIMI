@@ -94,8 +94,8 @@ public class ScoresDaoImpl implements ScoresDao {
         PreparedStatement preparedStatement = null;
         int result = 0;
         if (connection != null) {
-            String sql = "update Score set Couname=?,Scores=?,Rescores=? where Sno=? and Counumber=?";
-            Object[] params = {score.getCouName(),score.getScores(),"无",score.getsNo(),score.getCouNum()};
+            String sql = "update Score set Scores=? where Sno=? and Counumber=?";
+            Object[] params = {score.getScores(),score.getsNo(),score.getCouNum()};
             result = BaseDao.update(connection, preparedStatement, sql, params);
             BaseDao.closeDb(connection, preparedStatement, null);
         }
@@ -120,8 +120,8 @@ public class ScoresDaoImpl implements ScoresDao {
         PreparedStatement preparedStatement = null;
         int result = 0;
         if (connection != null) {
-            String sql = "insert into Score values (?,?,?,?,?)";
-            Object[] params = {score.getsNo(),score.getCouNum(),"空",score.getScores(),"无"};
+            String sql = "insert into Score(Sno,Counumber,Scores) values (?,?,?)";
+            Object[] params = {score.getsNo(),score.getCouNum(),score.getScores()};
             result = BaseDao.update(connection, preparedStatement, sql, params);
             BaseDao.closeDb(connection, preparedStatement, null);
         }

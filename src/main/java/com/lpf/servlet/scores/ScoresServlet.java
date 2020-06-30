@@ -38,16 +38,12 @@ public class ScoresServlet extends HttpServlet {
         String method = req.getParameter("method");
         if (method.equals("scorelist") && method != null) {
             this.getScoreInfo(req, resp);
-        } else if (method.equals("viewSco") && method != null) {
-            this.viewScore(req, resp);
         } else if (method.equals("upScoreInfo") && method != null) {
             this.upScoreInfo(req, resp);
         } else if (method.equals("beforechangeSco") && method != null) {
             this.beforeUpScore(req, resp);
         } else if (method.equals("delSco") && method != null) {
             this.delScoreInfo(req, resp);
-        } else if (method.equals("beforeAddScore") && method != null) {
-            this.beforeAddScore(req, resp);
         } else if (method.equals("addScoInfo") && method != null) {
             this.addScoreInfo(req, resp);
         } else if (method.equals("checkSnoCouno") && method != null) {
@@ -87,7 +83,7 @@ public class ScoresServlet extends HttpServlet {
         }
 
         //获取数据总条数
-        int totalCount = scoreService.getScoreListCount(sno,scorecou,curPage,pageSize);
+        int totalCount = scoreService.getScoreListCount(sno, scorecou, curPage, pageSize);
         Page page = new Page();
         page.setCurPage(curPage);
         page.setPageSize(pageSize);
@@ -105,7 +101,7 @@ public class ScoresServlet extends HttpServlet {
         req.setAttribute("curPage", curPage);
         req.setAttribute("totalCount", totalCount);
         //获取成绩列表
-        scoreList = scoreService.getScoreList(sno, scorecou,curPage,pageSize);
+        scoreList = scoreService.getScoreList(sno, scorecou, curPage, pageSize);
         req.setAttribute("scolist", scoreList);
         courseList = courseService.getCourseList();
         req.setAttribute("coList", courseList);
@@ -114,30 +110,6 @@ public class ScoresServlet extends HttpServlet {
         req.setAttribute("queryCou", scorecou);
 
         req.getRequestDispatcher("/jsp/scorelist.jsp").forward(req, resp);
-    }
-
-    //查看单独成绩信息
-    public void viewScore(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
-        String sno = req.getParameter("sno");
-        String counum = req.getParameter("counum");
-
-        ScoreService scoreService = new ScoreServiceImpl();
-        CourseService courseService = new CourseServiceImpl();
-        List<Score> scoreList = null;
-        List<Course> courseList = null;
-
-        scoreList = scoreService.getScoreList(Integer.parseInt(sno), Integer.parseInt(counum),1,10);
-        courseList = courseService.getCourseList();
-        Score score = new Score();
-        for (Score sco : scoreList) {
-            if (sco.getsNo() == Integer.parseInt(sno)) {
-                score = sco;
-                break;
-            }
-        }
-        req.setAttribute("soSingle", score);
-        req.setAttribute("coList", courseList);
-        req.getRequestDispatcher("/jsp/scoreview.jsp").forward(req, resp);
     }
 
     //更改成绩前查询
@@ -150,7 +122,7 @@ public class ScoresServlet extends HttpServlet {
         List<Score> scoreList = null;
         List<Course> courseList = null;
 
-        scoreList = scoreService.getScoreList(Integer.parseInt(sno), Integer.parseInt(counum),1,10);
+        scoreList = scoreService.getScoreList(Integer.parseInt(sno), Integer.parseInt(counum), 1, 10);
         courseList = courseService.getCourseList();
 
         Score score = new Score();
@@ -224,17 +196,6 @@ public class ScoresServlet extends HttpServlet {
         }
     }
 
-    //添加成绩前查询科目信息，让下拉框出现学科选项
-    public void beforeAddScore(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
-        CourseService courseService = new CourseServiceImpl();
-        List<Course> courseList = null;
-
-        courseList = courseService.getCourseList();
-        req.setAttribute("coList", courseList);
-
-        req.getRequestDispatcher("/jsp/scoreadd.jsp").forward(req, resp);
-    }
-
     //添加成绩信息
     public void addScoreInfo(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
         String addscosno = req.getParameter("addscosno");
@@ -242,10 +203,12 @@ public class ScoresServlet extends HttpServlet {
         String addscocname = req.getParameter("addscocname");
         String addscoscore = req.getParameter("addscoscore");
 
-        System.out.println("addscosno>------>"+addscosno);
-        System.out.println("addscosname>------>"+addscosname);
-        System.out.println("addscocname>------>"+addscocname);
-        System.out.println("addscoscore>------>"+addscoscore);
+        Map<String, String> message = new HashMap<String, String>();
+
+        System.out.println("addscosno>------>" + addscosno);
+        System.out.println("addscosname>------>" + addscosname);
+        System.out.println("addscocname>------>" + addscocname);
+        System.out.println("addscoscore>------>" + addscoscore);
         Score score = new Score();
         score.setsNo(Integer.parseInt(addscosno));
         score.setsName(addscosname);
@@ -259,13 +222,25 @@ public class ScoresServlet extends HttpServlet {
         courseList = courseService.getCourseList();
         req.setAttribute("coList", courseList);
         if (scoreService.addScores(score)) {
-            req.setAttribute(Constants.MESSAGE, "成绩添加成功");
+            message.put("result", "success");
         } else {
-            req.setAttribute(Constants.MESSAGE, "成绩添加失败");
-            req.setAttribute("score", score);
+            message.put("result", "error");
+            message.put("addscosno", addscosno);
+            message.put("addscosname", addscosname);
+            message.put("addscocname", addscocname);
+            message.put("addscoscore", addscoscore);
         }
 
-        req.getRequestDispatcher("/jsp/scoreadd.jsp").forward(req, resp);
+        try {
+            resp.setContentType("application/json");
+            PrintWriter writer = resp.getWriter();
+            writer.write(JSONArray.toJSONString(message));
+            writer.flush();
+            writer.close();
+        }catch (Exception e){
+            e.printStackTrace();
+        }
+
     }
 
     //检查某一学生的某课程的成绩信息是否存在
@@ -305,18 +280,18 @@ public class ScoresServlet extends HttpServlet {
 
     //以下学生操作，即学生能够操作的界面
     //登录成功后如果查询某一学科信息，则从session中获取用户学号从而完成查询
-    public void getSubInfo(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException{
+    public void getSubInfo(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
         String scorecouTemp = req.getParameter("scorecou");
         Student stu = (Student) req.getSession().getAttribute(Constants.STU_SESSION);
         String curPageTemp = req.getParameter("pageIndex");
 
-        Integer sno=null;
+        Integer sno = null;
         //从session中获取登录的学号
-        if (stu==null){
+        if (stu == null) {
             resp.sendRedirect("/error.jsp");
             return;
-        }else {
-            sno=stu.getsNo();
+        } else {
+            sno = stu.getsNo();
         }
 
         //选择课程的下拉框默认数据
@@ -339,7 +314,7 @@ public class ScoresServlet extends HttpServlet {
         }
 
         //获取数据总条数
-        int totalCount = scoreService.getScoreListCount(sno,scorecou,curPage,pageSize);
+        int totalCount = scoreService.getScoreListCount(sno, scorecou, curPage, pageSize);
         Page page = new Page();
         page.setCurPage(curPage);
         page.setPageSize(pageSize);
@@ -358,7 +333,7 @@ public class ScoresServlet extends HttpServlet {
         req.setAttribute("totalCount", totalCount);
 
         //获取成绩列表
-        scoreList = scoreService.getScoreList(sno, scorecou,curPage,pageSize);//待定
+        scoreList = scoreService.getScoreList(sno, scorecou, curPage, pageSize);//待定
         req.setAttribute("scolist", scoreList);
         courseList = courseService.getCourseList();
         req.setAttribute("coList", courseList);

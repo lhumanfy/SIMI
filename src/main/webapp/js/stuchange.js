@@ -97,10 +97,15 @@ $(function () {
         changeFaNo.change();
         if (changenameflag == true && changebirflag == true && changeclassflag == true
             && changeMaNoflag == true && changeFaNoflag == true) {
-            if (confirm("确定保存信息?")) {
-                $("#changestuinfo").submit();
-            }
+            bootbox.confirm({
+                message:"确定保存信息?",
+                locale:'zh_CN',
+                callback:function (result) {
+                    if (result){
+                        $("#changestuinfo").submit();
+                    }
+                }
+            });
         }
-
     });
 });

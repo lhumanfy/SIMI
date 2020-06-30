@@ -9,5 +9,7 @@
 <script src="${pageContext.request.contextPath}/js/boostrap/js/bootstrap-datetimepicker.js"></script>
 <script  src="${pageContext.request.contextPath}/js/boostrap/js/locales/bootstrap-datetimepicker.zh-CN.js"></script>
 <script src="${pageContext.request.contextPath}/js/boostrap/js/locales/bootstrap-datetimepicker.fr.js"></script>
+<script src="${pageContext.request.contextPath}/js/boostrap/bootbox.min.js"></script>
+<script src="${pageContext.request.contextPath}/js/boostrap/bootbox.locales.min.js"></script>
 </body>
 </html>

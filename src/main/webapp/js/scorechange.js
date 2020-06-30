@@ -11,14 +11,14 @@ $(function () {
     changeSore.on("blur", function () {
         var obj = $(this);
         if (obj.val() == "") {
-            obj.parent().parent().removeClass('has-success').addClass('has-error');
+            obj.parent().removeClass('has-success').addClass('has-error');
             obj.next().html("分数不可以为空");
         } else if (obj.val() < 0 || obj.val() > 100) {
-            obj.parent().parent().removeClass('has-success').addClass('has-error');
+            obj.parent().removeClass('has-success').addClass('has-error');
             obj.next().html("分数应该在0~100之间");
         }else {
             changeSoreflag = true;
-            obj.parent().parent().removeClass('has-error').addClass('has-success');
+            obj.parent().removeClass('has-error').addClass('has-success');
             obj.next().html("可用");
         }
     });
@@ -26,10 +26,15 @@ $(function () {
     changesave.on("click", function () {
         changeSore.blur();
         if (changeSoreflag==true) {
-            if (confirm("确定保存信息?")) {
-                $("#changescoreinfo").submit();
-            }
+            bootbox.confirm({
+                locale:"zh_CN",
+                message:"是否确定更改？",
+                callback:function (result) {
+                    if (result){
+                        $("#changescoreinfo").submit();
+                    }
+                }
+            })
         }
-
     });
 });
